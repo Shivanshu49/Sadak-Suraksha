@@ -11,6 +11,7 @@ import {
     Navigation,
 } from "lucide-react";
 import { reportI18n } from "../lib/i18n";
+import { createIncident } from "../services/api";
 
 const SAMPLE_PHOTOS = [
     "https://images.unsplash.com/photo-1686797366685-6420f4bd9c2f?w=300&q=80",
@@ -73,9 +74,20 @@ export default function ReportAccident({ darkMode, lang, onNavigate }) {
 
     const handleSubmit = async () => {
         setSubmitting(true);
-        await new Promise((r) => setTimeout(r, 2000));
-        setSubmitting(false);
-        onNavigate("confirmation");
+        try {
+            await createIncident({
+                lat: 28.6139, lng: 77.2090, // using default coordinates in UI
+                image_url: photos.length > 0 ? photos[0] : "https://example.com/placeholder-accident.jpg",
+                severity: severity,
+                description: description
+            });
+            onNavigate("confirmation");
+        } catch (err) {
+            console.error(err);
+            alert("Failed to report incident. Is backend running?");
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     return (
@@ -83,15 +95,15 @@ export default function ReportAccident({ darkMode, lang, onNavigate }) {
             {/* Header */}
             <header
                 className={`px-8 py-5 border-b ${darkMode
-                        ? "border-slate-700 bg-slate-800"
-                        : "border-slate-200 bg-white"
+                    ? "border-slate-700 bg-slate-800"
+                    : "border-slate-200 bg-white"
                     } flex items-center gap-4 flex-shrink-0`}
             >
                 <button
                     onClick={() => onNavigate("home")}
                     className={`w-9 h-9 ${darkMode
-                            ? "bg-slate-700 hover:bg-slate-600"
-                            : "bg-slate-100 hover:bg-slate-200"
+                        ? "bg-slate-700 hover:bg-slate-600"
+                        : "bg-slate-100 hover:bg-slate-200"
                         } rounded-xl flex items-center justify-center transition-colors`}
                 >
                     <ArrowLeft size={17} className={text} />
@@ -106,12 +118,12 @@ export default function ReportAccident({ darkMode, lang, onNavigate }) {
                         <div key={i} className="flex items-center gap-2">
                             <div
                                 className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium ${i === 0
-                                        ? "bg-blue-600 text-white"
-                                        : i === 1
-                                            ? "bg-blue-100 text-blue-700"
-                                            : darkMode
-                                                ? "bg-slate-700 text-slate-400"
-                                                : "bg-slate-100 text-slate-400"
+                                    ? "bg-blue-600 text-white"
+                                    : i === 1
+                                        ? "bg-blue-100 text-blue-700"
+                                        : darkMode
+                                            ? "bg-slate-700 text-slate-400"
+                                            : "bg-slate-100 text-slate-400"
                                     }`}
                             >
                                 <span className="w-4 h-4 rounded-full bg-current/20 flex items-center justify-center text-[10px]">
@@ -201,8 +213,8 @@ export default function ReportAccident({ darkMode, lang, onNavigate }) {
                             <button
                                 onClick={addPhoto}
                                 className={`flex items-center justify-center gap-2 border-2 border-dashed ${darkMode
-                                        ? "border-slate-600 text-slate-300"
-                                        : "border-slate-300 text-slate-500"
+                                    ? "border-slate-600 text-slate-300"
+                                    : "border-slate-300 text-slate-500"
                                     } rounded-xl py-3 text-sm font-medium hover:border-blue-400 hover:text-blue-500 transition-colors`}
                             >
                                 <Upload size={15} />
@@ -223,10 +235,10 @@ export default function ReportAccident({ darkMode, lang, onNavigate }) {
                                     key={opt.key}
                                     onClick={() => setSeverity(opt.key)}
                                     className={`flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 text-sm font-semibold transition-all ${severity === opt.key
-                                            ? opt.color + " ring-2 ring-offset-1 ring-current"
-                                            : darkMode
-                                                ? "bg-slate-700 border-slate-600 text-slate-300"
-                                                : "bg-slate-50 border-slate-200 text-slate-500"
+                                        ? opt.color + " ring-2 ring-offset-1 ring-current"
+                                        : darkMode
+                                            ? "bg-slate-700 border-slate-600 text-slate-300"
+                                            : "bg-slate-50 border-slate-200 text-slate-500"
                                         }`}
                                 >
                                     <div className={`w-2 h-2 rounded-full ${opt.dot}`} />
@@ -243,10 +255,10 @@ export default function ReportAccident({ darkMode, lang, onNavigate }) {
                             <button
                                 onClick={() => setRecording(!recording)}
                                 className={`ml-auto flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${recording
-                                        ? "bg-red-500 text-white"
-                                        : darkMode
-                                            ? "bg-slate-700 text-slate-300"
-                                            : "bg-slate-100 text-slate-600"
+                                    ? "bg-red-500 text-white"
+                                    : darkMode
+                                        ? "bg-slate-700 text-slate-300"
+                                        : "bg-slate-100 text-slate-600"
                                     }`}
                             >
                                 <Mic
@@ -299,10 +311,10 @@ export default function ReportAccident({ darkMode, lang, onNavigate }) {
                                     key={svc.key}
                                     onClick={svc.toggle}
                                     className={`flex items-center justify-center gap-2 py-3 rounded-xl border-2 text-sm font-medium transition-all ${svc.active
-                                            ? "bg-blue-600 border-blue-600 text-white"
-                                            : darkMode
-                                                ? "bg-slate-700 border-slate-600 text-slate-300"
-                                                : "bg-slate-50 border-slate-200 text-slate-500"
+                                        ? "bg-blue-600 border-blue-600 text-white"
+                                        : darkMode
+                                            ? "bg-slate-700 border-slate-600 text-slate-300"
+                                            : "bg-slate-50 border-slate-200 text-slate-500"
                                         }`}
                                 >
                                     <span className="text-lg">{svc.emoji}</span>
@@ -405,8 +417,8 @@ export default function ReportAccident({ darkMode, lang, onNavigate }) {
                     {/* Tips */}
                     <div
                         className={`rounded-xl p-4 ${darkMode
-                                ? "bg-blue-900/30 border border-blue-800"
-                                : "bg-blue-50 border border-blue-100"
+                            ? "bg-blue-900/30 border border-blue-800"
+                            : "bg-blue-50 border border-blue-100"
                             }`}
                     >
                         <p

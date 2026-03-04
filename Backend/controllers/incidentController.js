@@ -11,12 +11,18 @@ export const createIncident = async (req, res) => {
   try {
     const { lat, lng, image_url } = req.body;
 
-    // Call AI service
-    const aiResponse = await axios.post("http://localhost:8000/analyze", {
-      image_url
-    });
-
-    const { severity, confidence } = aiResponse.data;
+    // Call AI service gracefully
+    let severity = "major";
+    let confidence = 0.5;
+    try {
+      const aiResponse = await axios.post("http://localhost:8000/analyze", { image_url });
+      if (aiResponse.data) {
+        severity = aiResponse.data.severity || severity;
+        confidence = aiResponse.data.confidence || confidence;
+      }
+    } catch (aiError) {
+      console.warn("AI service unreachable, using defaults:", aiError.message);
+    }
 
     const incident = await Incident.create({
       location: { lat, lng },
